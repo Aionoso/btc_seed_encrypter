@@ -1,5 +1,5 @@
 # btc_seed_encrypter
-Uses a PW (UTF-8) Hash in Decimal to do a Ceasar encryption using the bip39 words.
+Uses a PW (UTF-8) in a SHA-2 512 Hash in Decimal to do a Ceasar encryption using the bip39 words.
 
 
 ## Use this to create environment and exe
