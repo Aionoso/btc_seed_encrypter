@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
+    filevers=(2, 1, 0, 0),
+    prodvers=(2, 1, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x4,
@@ -17,11 +17,11 @@ VSVersionInfo(
           [
             StringStruct(u"CompanyName", u"Aionoso"),
             StringStruct(u"FileDescription", u"Encryption of BTC Mnemonic Seeds"),
-            StringStruct(u"FileVersion", u"1.0.0.0"),
+            StringStruct(u"FileVersion", u"2.1.0.0"),
             StringStruct(u"InternalName", u"BTC Seed Encrypter"),
             StringStruct(u"LegalCopyright", u"Aionoso"),
             StringStruct(u"ProductName", u"BTC Seed Encrypter"),
-            StringStruct(u"ProductVersion", u"1.0.0.0"),
+            StringStruct(u"ProductVersion", u"2.1.0.0"),
             StringStruct(u"ApplicationName", u"BTC Seed Encrypter.exe")
           ]
         )

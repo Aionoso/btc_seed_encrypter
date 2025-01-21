@@ -2048,8 +2048,8 @@ zone
 zoo"""
 
 word_list = words.split("\n")
-num_word = {i:w for i, w in enumerate(word_list)}
-word_num = {w:i for i, w in enumerate(word_list)}
+num_word = {(i+1):w for i, w in enumerate(word_list)}
+word_num = {w:(i+1) for i, w in enumerate(word_list)}
 word_count = len(num_word)
 go_up = True
 
@@ -2097,7 +2097,7 @@ def shift_words(mnemonic_word_num, shifts, factor = 1):
         if mnemonic_word_num[index] < 0: 
             shifted_words[index] = ""
         else:
-            new_num = (mnemonic_word_num[index] + factor * shifts[index]) % word_count
+            new_num = ((mnemonic_word_num[index] + factor * shifts[index] - 1) % word_count) + 1
             shifted_words[index] = num_word[new_num]
     return shifted_words
 
@@ -2305,7 +2305,7 @@ def switch_selected_to_words():
 
 def switch_selected_to_index():
     for i, w in seed_selectors.items():
-        seed_selectors[i]["values"] = ["{:0>4}".format(i) for i in range(word_count)]
+        seed_selectors[i]["values"] = ["{:0>4}".format(i+1) for i in range(word_count)]
         if w.get() != "":
             seed_selectors[i].set("{:0>4}".format(word_num[w.get()]))
 
