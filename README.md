@@ -9,4 +9,4 @@ Uses a PW (UTF-8) in a SHA-2 512 Hash in Decimal to do a Ceasar encryption using
 
 3. `pip install pyinstaller`
 
-4. `pyinstaller --noconfirm --noconsole --onefile --icon "icon.ico" --add-data "icon.png;." "btc_seed_encrypter.py"`
+4. `pyinstaller --noconfirm --noconsole --onefile --icon "icon.ico" --add-data "icon.png;." --version-file="version.txt" "btc_seed_encrypter.py"`
