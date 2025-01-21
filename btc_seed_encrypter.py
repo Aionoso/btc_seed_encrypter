@@ -2112,6 +2112,8 @@ hoverColor = btcColor
 seed_word_count = 24
 seed_word_line = 4
 
+input_is_words = True
+output_is_words = True
 
 class ModifiedMixin:
 
@@ -2224,14 +2226,28 @@ def set_hash_from(text):
     update_all(None)
 
 def get_selected_words():
-    return {i:clean(w.get()) for i, w in seed_selectors.items()}
+    if input_is_words:
+        return {i:w.get() for i, w in seed_selectors.items()}
+    return {i:checked_word(w.get()) for i, w in seed_selectors.items()}
 
 def set_output_words(results):
-    return {w.set(number(i, results[i])) for i, w in seed_word_outputs.items()}
+    if output_is_words:
+        return {w.set(number(i, results[i])) for i, w in seed_word_outputs.items()}
+    return {w.set(number(i, checked_index(results[i]))) for i, w in seed_word_outputs.items()}
 
 def update_all(event):
     set_output_words(shift_words(add_nums_to_words(get_selected_words()), num_to_shifts(hash_num(walletword.get("1.0", "end-1c"))), get_dir()))
-    
+
+def checked_index(result):
+    if result == "": 
+        return ""
+    return "{:0>4}".format(word_num[result])
+
+def checked_word(result):
+    if result.isdigit():
+        return num_word[int(result)]
+    return ""
+
 def clean(word):
     if ":" in word: 
         return word.split(":")[1].strip()
@@ -2243,7 +2259,14 @@ def number(i, word):
     return word
 
 def swap_sides():
-    {seed_selectors[i].set(clean(w.get())) for i, w in seed_word_outputs.items()}
+    if input_is_words == output_is_words:
+        {seed_selectors[i].set(clean(w.get())) for i, w in seed_word_outputs.items()}
+    else:
+        for i, w in seed_word_outputs.items():
+            if input_is_words:
+                seed_selectors[i].set(checked_word(clean(w.get())))
+            else:
+                seed_selectors[i].set(checked_index(clean(w.get())))
     update_all(None)
 
 def toggle_dir():
@@ -2251,6 +2274,51 @@ def toggle_dir():
     go_up = not go_up
     dir_button_text.set("+" if go_up else "-")
     update_all(None)
+
+def toggle_left():
+    global input_is_words
+    input_is_words = not input_is_words
+    left_button_text.set("w" if input_is_words else "i")
+    if input_is_words:
+        left_button.config(relief="raised")
+        switch_selected_to_words()
+    else:
+        left_button.config(relief="sunken")
+        switch_selected_to_index()
+
+def toggle_right():
+    global output_is_words
+    output_is_words = not output_is_words
+    right_button_text.set("w" if output_is_words else "i")
+    if output_is_words:
+        right_button.config(relief="raised")
+        switch_output_to_words()
+    else:
+        right_button.config(relief="sunken")
+        switch_output_to_index()
+
+def switch_selected_to_words():
+    for i, w in seed_selectors.items():
+        seed_selectors[i]["values"] = word_list.copy()
+        if w.get() != "":
+            seed_selectors[i].set(num_word[int(w.get())])
+
+def switch_selected_to_index():
+    for i, w in seed_selectors.items():
+        seed_selectors[i]["values"] = ["{:0>4}".format(i) for i in range(word_count)]
+        if w.get() != "":
+            seed_selectors[i].set("{:0>4}".format(word_num[w.get()]))
+
+
+def switch_output_to_words():
+    for i, w in seed_word_outputs.items():
+        if clean(w.get()) != "":
+            seed_word_outputs[i].set(number(i, num_word[int(clean(w.get()))]))
+
+def switch_output_to_index():
+    for i, w in seed_word_outputs.items():
+        if clean(w.get()) != "":
+            seed_word_outputs[i].set(number(i, "{:0>4}".format(word_num[clean(w.get())])))
 
 root = Tk()
 root.title("BTC seed encryption")
@@ -2290,7 +2358,17 @@ HoverButton(root, text="🡲", command=swap_sides, bg=bgColor, fg=whiteColor, fo
 
 dir_button_text = StringVar()
 dir_button_text.set("+")
-HoverButton(root, textvariable=dir_button_text, command=toggle_dir, bg=bgColor, fg=whiteColor, font=fontStyle_title, borderwidth=10).place(relx = 0.475, rely = 0.725, relwidth = 0.05, relheight = 0.2)
+HoverButton(root, textvariable=dir_button_text, command=toggle_dir, bg=bgColor, fg=whiteColor, font=fontStyle_title, borderwidth=10).place(relx = 0.475, rely = 0.725, relwidth = 0.05, relheight = 0.125)
+
+left_button_text = StringVar()
+left_button_text.set("w")
+left_button = HoverButton(root, textvariable=left_button_text, command=toggle_left, bg=bgColor, fg=whiteColor, font=fontStyle_tiny, borderwidth=7)
+left_button.place(relx = 0.475, rely = 0.875, relwidth = 0.025, relheight = 0.05)
+
+right_button_text = StringVar()
+right_button_text.set("w")
+right_button = HoverButton(root, textvariable=right_button_text, command=toggle_right, bg=bgColor, fg=whiteColor, font=fontStyle_tiny, borderwidth=7)
+right_button.place(relx = 0.5, rely = 0.875, relwidth = 0.025, relheight = 0.05)
 
 set_hash_from("")
 
