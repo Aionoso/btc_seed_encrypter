@@ -3,6 +3,8 @@ Uses a PW (UTF-8) in a SHA-2 512 Hash in Decimal to do a Ceasar encryption using
 
 
 ## Use this to create environment and exe
+Install Python > 3.10
+
 1. `python -m venv env`
 
 2. `env\scripts\activate`
