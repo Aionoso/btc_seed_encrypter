@@ -2052,7 +2052,7 @@ word_num = {w:(i+1) for i, w in enumerate(word_list)}
 word_count = len(num_word)
 go_up = True
 
-from hashlib import sha512
+from hashlib import sha256, sha512
 from os.path import abspath, join
 
 def resource_path(relative_path):
@@ -2067,6 +2067,48 @@ def resource_path(relative_path):
 
 def get_dir():
     return 1 if go_up else -1
+
+
+# 24 Word Checksum
+def get_entropy(words):
+    entropy = 0
+    for word in words:
+        entropy = (entropy << 11) + word_num[word] - 1
+    return entropy
+
+def hash_entropy(entropy_candidate):
+    return sha256(entropy_candidate.to_bytes(entropy_size, "big")).digest()[0]
+
+def get_24_word_candidates(words):
+    entropy_base = get_entropy(words) << entropy_to_fill
+    
+    word_candidate_idx = []
+    for i in range(0, 2 ** entropy_to_fill):
+        entropy_candidate = entropy_base | i
+        checksum = hash_entropy(entropy_candidate) >> (8 - checksum_bits)
+        word_candidate_idx.append((i << checksum_bits) + checksum + 1)
+    
+    return word_candidate_idx
+
+def get_next(idx, candidates):
+    for c in candidates:
+        if c > idx:
+            return c
+    return candidates[0]
+
+def fix_checksum(word_numbers):
+	if not is_full(word_numbers): 
+		return word_numbers
+	fixed_words = word_numbers.copy()
+	fixed_words[seed_word_count] = num_word[get_next(word_num[word_numbers[seed_word_count]], get_24_word_candidates(list(word_numbers.values())[:-1]))]
+	return fixed_words
+
+def is_full(word_numbers):
+	for w in word_numbers.values():
+		if not w: 
+			return False
+	return True
+
 
 def hash_num(pw):
     return int.from_bytes(sha512(bytes(pw, encoding="utf-8")).digest(), "big")
@@ -2098,7 +2140,7 @@ def shift_words(mnemonic_word_num, shifts, factor = 1):
         else:
             new_num = ((mnemonic_word_num[index] + factor * shifts[index] - 1) % word_count) + 1
             shifted_words[index] = num_word[new_num]
-    return shifted_words
+    return fix_checksum(shifted_words)
 
 from tkinter import mainloop, Tk, Label, Text, Button, StringVar, ttk, Frame, W, CENTER, E, PhotoImage
 from tkinter.font import Font
@@ -2108,8 +2150,13 @@ bgColor = "#1D1D1B"
 whiteColor = "white"
 btcColor = "#F7931A"
 hoverColor = btcColor
-seed_word_count = 24
+
 seed_word_line = 4
+
+seed_word_count = 24
+checksum_bits = seed_word_count // 3
+entropy_size = (seed_word_count * 11 - checksum_bits) // 8
+entropy_to_fill = 11 - checksum_bits
 
 input_is_words = True
 output_is_words = True
@@ -2322,7 +2369,7 @@ def switch_output_to_index():
 root = Tk()
 root.title("BTC seed encryption")
 root.geometry("1200x800")
-root.iconphoto(False, PhotoImage(file=resource_path("icon.png")))
+#root.iconphoto(False, PhotoImage(file=resource_path("icon.png")))
 root.configure(bg=bgColor)
 
 root.option_add("*TCombobox*Listbox*Background", bgColor)
