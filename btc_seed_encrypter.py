@@ -2369,7 +2369,7 @@ def switch_output_to_index():
 root = Tk()
 root.title("BTC seed encryption")
 root.geometry("1200x800")
-#root.iconphoto(False, PhotoImage(file=resource_path("icon.png")))
+root.iconphoto(False, PhotoImage(file=resource_path("icon.png")))
 root.configure(bg=bgColor)
 
 root.option_add("*TCombobox*Listbox*Background", bgColor)
